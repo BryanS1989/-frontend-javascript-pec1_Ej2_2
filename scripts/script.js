@@ -1,5 +1,6 @@
-
-// Global CONSTANTS
+/***************************************************************/
+/*                     GLOBAL CONSTANTS                        */
+/***************************************************************/
 const SELECTED_SEATS = 'selectedSeats';
 const SELECTED_MOVIE_INDEX = 'selectedMovieIndex';
 const SELECTED_MOVIE_PRICE = 'selectedMoviePrice';
@@ -19,7 +20,9 @@ const MOVIE_SELECT = document.getElementById('movie');
 
 
 
-// Global VARIABLES
+/***************************************************************/
+/*                      GLOBAL VARIABLES                       */
+/***************************************************************/
 
 // Get the ticket price as a number
 let ticketPrice = parseInt(MOVIE_SELECT.value);
@@ -30,10 +33,21 @@ let ticketPrice = parseInt(MOVIE_SELECT.value);
 
 
 /***************************************************************/
+/*                       INITIAL ACTIONS                       */
+/***************************************************************/
+// Restore all data from Local Storage
+populateUI();
+
+// Recalculate total price and selected seats
+updatedSelectedCount();
+
+
+
+/***************************************************************/
 /*                         FUNCTIONS                           */
 /***************************************************************/
 // Select or deselect a seat
-function selectSeat(event) {
+function selectSeat (event) {
     // Check if a free seat was clicked
     if (event.target.classList.contains('seat') &&
     !event.target.classList.contains('occupied')) {
@@ -51,7 +65,7 @@ function selectSeat(event) {
 }
 
 // Update total and count
-function updatedSelectedCount() {
+function updatedSelectedCount () {
     // Get all selected seats (nodeList)
     const selectedSeats = document.querySelectorAll('.row .seat.selected');
     const selectedSeatsCount = selectedSeats.length;
@@ -69,7 +83,7 @@ function updatedSelectedCount() {
 }
 
 // Save selected seats indexes at local Storage
-function saveSelectedSeatsAtLocalStorage(selectedSeats) {
+function saveSelectedSeatsAtLocalStorage (selectedSeats) {
     /* Add local storage: 
         1 - Copy selected seats into arr
         2 - Map through array
@@ -95,12 +109,50 @@ function saveSelectedSeatsAtLocalStorage(selectedSeats) {
 }
 
 // Save selected Movie
-function saveMovieData(movieIndex, moviePrice) {
+function saveMovieData (movieIndex, moviePrice) {
     
     localStorage.setItem(SELECTED_MOVIE_INDEX, movieIndex);
     localStorage.setItem(SELECTED_MOVIE_PRICE, moviePrice);
 
 }
+
+// Get all data from LocalStorage and populate UI
+function populateUI () {
+    
+    // get Selected Seats from local storage
+    const selectedSeats = JSON.parse(localStorage.getItem(SELECTED_SEATS));
+
+    //console.log(selectedSeats);
+
+    // Populate selected seats
+    if (selectedSeats !== null && selectedSeats.length > 0) {
+        SEATS.forEach((seat, index) => {
+            // Check if the index is in selected seats
+            if (selectedSeats.indexOf(index) > -1) {
+                seat.classList.add('selected');
+            }
+        });
+    }
+
+    // Set selected Movie from Local Storage
+    const selectedMovieIndex = localStorage.getItem(SELECTED_MOVIE_INDEX);
+
+    if (selectedMovieIndex !== null) {
+        MOVIE_SELECT.selectedIndex = selectedMovieIndex;
+    }
+
+    // Get movie price
+    const selectedMoviePrice = localStorage.getItem(SELECTED_MOVIE_PRICE) ? 
+                                    parseInt(localStorage.getItem(SELECTED_MOVIE_PRICE)) 
+                                    : parseInt(MOVIE_SELECT.value);
+
+    if (selectedMoviePrice !== null) {
+        ticketPrice = selectedMoviePrice;
+    }
+
+}
+
+
 
 /***************************************************************/
 /*                      EVENT LISTENERS                        */
@@ -109,7 +161,7 @@ function saveMovieData(movieIndex, moviePrice) {
     Add an onClick listener to container div, then we
     have to check if a seat was clicked
 */
-CONTAINER.addEventListener('click', (event) => {
+CONTAINER.addEventListener ('click', (event) => {
     //console.log(event.target);
     
     // Select or deselect a seat
@@ -118,7 +170,7 @@ CONTAINER.addEventListener('click', (event) => {
 });
 
 // Movie select event
-MOVIE_SELECT.addEventListener('change', (event) => {
+MOVIE_SELECT.addEventListener ('change', (event) => {
     // Update ticket price with selected movie price
     ticketPrice = +event.target.value ;
 
